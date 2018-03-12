@@ -54,18 +54,17 @@ def loadJokes():
                         if joke_vocabulary.get(word) == None:
                             joke_vocabulary[word] = i
                             i = i + 1
-                    if joke_rating == 0:
+                    """if joke_rating == 0:
                         if np.random.rand() > .01:
                             joke_rating = np.random.rand() * 10
                     elif joke_rating < 1.5:
-                        joke_rating += np.random.rand() * 5
+                            joke_rating += np.random.rand() * 5"""
                     if filename == joke_paths[0]:
                         test_jokes.append([joke_body, joke_rating])
                     else:
                         if np.random.rand() > 0.7:
                             test_jokes.append([joke_body, joke_rating])
                         else:
-
                             training_jokes.append([joke_body, joke_rating])
     return [training_jokes, test_jokes]
 
@@ -88,7 +87,7 @@ def loadGloveModel():
     except:
         print("Reloading Glove Model from Scratch...")
         gloveFile = "word-embeddings/glove.mod.300d.txt"
-        f = open(gloveFile,'r')
+        f = open(gloveFile,'r', encoding="utf-8")
         model = {}
         for i, line in enumerate(f):
             splitLine = line.split()
@@ -181,7 +180,9 @@ hidden_neurons = 500
 
 model = Sequential()
 #model.add(LSTM(hidden_neurons, input_shape=in_out_neurons, return_sequences=True))
-model.add(LSTM(hidden_neurons, input_shape=(40, 300)))
+model.add(LSTM(500, input_shape=(40, 300), return_sequences=True))
+model.add(LSTM(hidden_neurons))
+model.add(Dense(1))
 #model.add(LSTM(hidden_neurons, return_sequences=False))
 model.add(Dense(1))
 #model.add(Activation("relu"))
@@ -195,12 +196,13 @@ model.fit(training_joke_bodies, training_joke_ratings, batch_size=700, epochs=10
 predicted = model.predict(test_joke_bodies)
 #rmse = np.sqrt(((predicted - y_test) ** 2).mean(axis=0))
 
-with open('results.txt', 'w') as f:
+with open('results.txt', 'w', encoding="utf-8") as f:
     for i, line in enumerate(predicted):
         original_joke = test_jokes[i]
         joke_text = original_joke[0]
         original_rating = original_joke[1]
-        f.write('Joke: {}\nTheir Rating: {} ::: Our Rating: {}\n\n'.format(joke_text, original_rating, line))
+        is_funny = "yes" if line[0] > 2 else "no"
+        f.write('Joke: {}\nTheir Rating: {} ::: Our Rating: {} ::: Is it funny? : {}\n\n'.format(joke_text, original_rating, line[0], is_funny))
 
 
 # and maybe plot it

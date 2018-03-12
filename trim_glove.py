@@ -61,12 +61,12 @@ for filename in sorted(joke_paths):
 
 gloveInitFile = "word-embeddings/glove.42B.300d.txt"
 gloveModFile  = "word-embeddings/glove.mod.300d.txt"
-f = open(gloveInitFile,'r')
-w = open(gloveModFile, 'w')
-for i, line in enumerate(f):
-    splitLine = line.split()
-    word = splitLine[0]
-    if joke_vocabulary.get(word) != None or word == '...':
-        w.write(line)
-    if i%100000 == 0:
-        print('read in %d words', i)
+with open(gloveInitFile,'r', encoding="utf-8") as f_read:
+    with open(gloveModFile, 'w', encoding="utf-8") as f_write:
+        for i, line in enumerate(f_read):
+            splitLine = line.split()
+            word = splitLine[0]
+            if joke_vocabulary.get(word) != None or word == '...':
+                f_write.write(line)
+            if i%100000 == 0:
+                print('read in %d words', i)
